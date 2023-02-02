@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from apyori import apriori
 
 # Function
 def mod_data():
@@ -84,6 +85,26 @@ def mod_data():
     for i in range(1,11):
         df['P'+str(i)]=df['P'+str(i)].map(penyakit)
 
+def preprocessing_data():
+    dataset = df[['P1','P2','P3','P4','P5','P6','P7','P8','P9','P10']]
+
+    dataset['DATA'] = dataset[dataset.columns[0:]].apply(
+        lambda x: ','.join(x.dropna().astype(str)),
+        axis=1
+    )
+
+    data = dataset[['DATA']]
+
+    records = []
+    for i in range(data.shape[0]):
+        records.append([str(data.values[i,j]).split(',') for j in range(data.shape[1])])
+
+    trx = [[] for trx in range(len(records))]
+    for i in range(len(records)):
+        for j in records[i][0]:
+            trx[i].append(j)
+    return trx
+
 
 # Streamlit
 with st.sidebar:
@@ -101,13 +122,27 @@ with st.sidebar:
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file, skiprows=[0,1])
-    st.title("Dataset")
+    st.title("Streamlit Apps")
     st.markdown("## Dataset")
     st.write('Jumlah Data :',len(df))
-    with st.expander(""):
+    with st.expander("Expand **Raw Data**"):
         mod_data()
         st.dataframe(df)
-    
+
+    with st.expander("Expand **Bar Chart**"):
+        disease_set = df[['P1','P2','P3','P4','P5','P6','P7','P8','P9','P10']]
+
+        disease_set['DISEASE'] = disease_set[disease_set.columns[0:]].apply(
+            lambda x: ','.join(x.dropna().astype(str)),
+            axis=1
+        )
+
+        split_data = disease_set['DISEASE'].str.split(',').apply(pd.Series).stack().reset_index(level=1, drop=True).to_frame('DISEASE')
+
+        disease_counts = split_data['DISEASE'].value_counts()
+
+        st.bar_chart(disease_counts)
+
     st.markdown('---')
     st.markdown("## Apriori")
     st.markdown(
@@ -130,3 +165,21 @@ if uploaded_file:
 
     confidence = st.slider("Masukkan Nilai Batas Minimum Confidence", min_value=0.1,
                         max_value=0.9, value=0.6, help=confidence_helper)
+
+    association_rules = apriori(preprocessing_data(), min_support=support, min_confidence=confidence,min_lift=1)
+    association_results = association_rules
+
+    pd.set_option('max_colwidth', 1000)
+
+    Result=pd.DataFrame(columns=['Rule','Support','Confidence'])
+    for item in association_results:
+        pair = item[2]
+        for i in pair:
+            items = str([x for x in i[0]])
+            if i[3]!=1:
+                Result=Result.append({
+                    'Rule':str([x for x in i[0]])+ " -> " +str([x for x in i[1]]),
+                    'Support':str(round(item[1]*100,2))+'%',
+                    'Confidence':str(round(i[2] *100,2))+'%'
+                    },ignore_index=True)
+    Result
