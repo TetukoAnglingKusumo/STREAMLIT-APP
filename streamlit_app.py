@@ -94,7 +94,7 @@ with st.sidebar:
         
         Pastikan untuk menggunakan data yang sesuai dengan format tersebut agar hasilnya dapat ditampilkan dengan benar.
         
-        Source code: <https://github.com/giswqs/streamlit-template>
+        Source code: <https://github.com/TetukoAnglingKusumo/STREAMLIT-APP>
         """
     )
     uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
