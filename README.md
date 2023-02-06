@@ -1,3 +1,3 @@
 # APLIKASI STREAMLIT APRIORI
 
-App URL: <https://apriorideployment11922.streamlit.app/>
+App URL: <https://apriori11922.streamlit.app/>

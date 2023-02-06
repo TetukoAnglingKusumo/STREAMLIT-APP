@@ -115,7 +115,7 @@ with st.sidebar:
         
         Pastikan untuk menggunakan data yang sesuai dengan format tersebut agar hasilnya dapat ditampilkan dengan benar.
         
-        Source code: <https://apriorideployment11922.streamlit.app/>
+        Source code: <https://github.com/TetukoAnglingKusumo/STREAMLIT-APP>
         """
     )
     uploaded_file = st.file_uploader("Choose a XLSX file", type="xlsx")
